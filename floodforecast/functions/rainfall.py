@@ -16,13 +16,14 @@ import pandas as pd
 import copy
 
 class Rain():
-    def __init__(self, stationNameList, nowFormat, obsUrl='CWB'):
+    def __init__(self, stationNameList, nowFormat, pastHours, obsUrl='CWB'):
         self.stationNameList = stationNameList
         self.nowFormat = nowFormat
         self.obsUrl = obsUrl
         self.timer = Timer()
-        self.timer.observe()
+        self.timer.observe(pastHours=pastHours)
     
+
     def obsRainDict(self):
         obsRainDict = {}
         
@@ -145,6 +146,7 @@ class Rain():
                 futureHours = forecastLen            
             simFlag = True        
         except:
+            print(f"Warning!! {simUrl} doesn't exist. It will return any emty list")
             simFlag = False
                 
         if simFlag:
@@ -222,6 +224,7 @@ class Rain():
 
     def warnRainDict(self, warnObsRainDict, simRainDict):
         warnRainDict = self.combineRainDict(warnObsRainDict, simRainDict)
+
 
         return warnRainDict
 

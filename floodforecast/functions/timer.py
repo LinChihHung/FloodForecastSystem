@@ -9,6 +9,7 @@ class Timer:
         rawTime = datetime.now()
         
         self.nowTime = datetime.now().replace(second=0, microsecond=0) - timedelta(minutes=10 + rawTime.minute % 10)
+        # self.nowTime = datetime(year=2021, month=6, day=21, hour=16)
         self.nowFormat = self.nowTime.strftime('%Y%m%d%H')
 
 
