@@ -133,28 +133,26 @@ class Rain():
         
         return bmeObsRainDict
 
-
-    def futureHours(self, simUrl, futureHoursMax):
-        data = urlopen(os.path.join(_url[simUrl], self.nowFormat)).read().decode('utf-8')
-        forecastLen = len(BeautifulSoup(data, 'html.parser').findAll('a')) - 1
-        if forecastLen > futureHoursMax:
-            futureHours = futureHoursMax
-        else:
-            futureHours = forecastLen
-        
-        return futureHours
     
-
     def simRainDict(self, simUrl, futureHoursMax=24):
         simRainDict = {}
-        futureHours = self.futureHours(simUrl=simUrl, futureHoursMax=futureHoursMax)
-        
-        self.timer.simulate(futureHours=futureHours)
-        simHtFormat = self.timer.simHtFormat
-        
-        zipName = 'grid_rain_0000.0{:0>2d}{}'
-        for num, dataTimeHt in enumerate(simHtFormat):
-            try:
+        try:
+            data = urlopen(os.path.join(_url[simUrl], self.nowFormat)).read().decode('utf-8')
+            forecastLen = len(BeautifulSoup(data, 'html.parser').findAll('a')) - 1
+            if forecastLen > futureHoursMax:
+                futureHours = futureHoursMax
+            else:
+                futureHours = forecastLen            
+            simFlag = True        
+        except:
+            simFlag = False
+                
+        if simFlag:
+            self.timer.simulate(futureHours=futureHours)
+            simApiFormat = self.timer.simApiFormat
+
+            zipName = 'grid_rain_0000.0{:0>2d}{}'
+            for num, dataTimeApi in enumerate(simApiFormat):
                 data = urlopen(os.path.join(
                     _url[simUrl], self.nowFormat, zipName.format(num + 1, '.zip')))
                 zipfile = ZipFile(BytesIO(data.read()))
@@ -171,48 +169,61 @@ class Rain():
                     csvPath = os.path.join(os.getcwd(), 'floodforecast', 'data', 'csv', fileName)
                     simRainDataFrame.to_csv(csvPath, index=None)
 
-                simFlag = True
             
-            except:
-                simFlag = False
-        
-            for stcode in self.stationNameList:
-                chName = _stationData[stcode]['chineseName']
-                town = _stationData[stcode]['town']
-                if num == 0:
-                    simRainDict[stcode] = []
-                
-                dataList = []
-                information = {}
-                information['station'] = chName
-                information['type'] = simUrl
-                information['time'] = dataTimeHt
-                if simFlag:
+                for stcode in self.stationNameList:
+                    if num == 0:
+                        simRainDict[stcode] = []
+                    
+                    dataList = []
                     forecastPoint = _stationData[stcode]['points']
                     meanValue = round(mean([float(i) for i in simRainDataFrame.loc[forecastPoint].iloc[:, 2]]), 2)
                     maxValue = max([float(i) for i in simRainDataFrame.loc[forecastPoint].iloc[:, 2]])
-                    
-                    information['rainfall'] = meanValue
+                    information = {}
+                    information['type'] = simUrl
+                    information['time'] = dataTimeApi                
+                    information['mean'] = meanValue
                     information['max'] = maxValue
-                    
-                else:
-                    information['rainfall'] = nan
-                    information['max'] = nan
-                    
-                dataList.append(information)
-                simRainDict[stcode].extend(dataList)
-        
+                        
+                    dataList.append(information)
+                    simRainDict[stcode].extend(dataList)
+        else:
+            simRainDict = []
         return simRainDict
     
-    
-    def totalRainDict(self, obsRainDict, simRainDict):
-        totalRainDict = copy.deepcopy(obsRainDict)
+
+    def inputSimRainDict(self, simRainDict):
+        '''
+        change simRainDict into inputSimRainDict
+        1. Change key name from 'mean' to 'rainfall'
+        2. delete unuse key 'max'
+        '''
+        inputSimRainDict = copy.deepcopy(simRainDict)
+        newKey = 'rainfall'
+        oldKey = 'mean'
+
+        for stcode in self.stationNameList:
+            simData = inputSimRainDict[stcode]
+
+            for data in simData:
+                data[newKey] = data.pop(oldKey)
+                del data['max']
+        
+        return inputSimRainDict
+
+   
+    def combineRainDict(self, obsRainDict, simRainDict):
+        combineRainDict = copy.deepcopy(obsRainDict)
         
         for stcode in obsRainDict.keys():
-            totalRainDict[stcode].extend(simRainDict[stcode])
+            combineRainDict[stcode].extend(simRainDict[stcode])
         
-        return totalRainDict
+        return combineRainDict
 
+
+    def warnRainDict(self, warnObsRainDict, simRainDict):
+        warnRainDict = self.combineRainDict(warnObsRainDict, simRainDict)
+
+        return warnRainDict
 
 
 if __name__ == '__main__':
