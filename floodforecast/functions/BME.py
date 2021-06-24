@@ -50,4 +50,5 @@ if __name__ == '__main__':
     x, y = test.BMEformatter(dataframe=dataframe, points=points)
     print(x, y)
     for stcode in stationNameList:
+        points = _stationData[stcode]['points']
 

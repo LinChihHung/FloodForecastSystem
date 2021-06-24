@@ -90,7 +90,7 @@ class Rain():
         return inputObsRainDict
 
 
-    def warnObsRainDict(self, obsRainDict):
+    def sumObsRainDict(self, obsRainDict):
         warnObsFormat = self.timer.warnObsFormat
         warnObsRainDict = copy.deepcopy(obsRainDict)
         
@@ -102,8 +102,6 @@ class Rain():
             for dataTimeInput in warnObsFormat:
                 for data in obsData:
                     if data['time'] == dataTimeInput:
-                        # add key 'rainfall' equal 01h value
-                        data['rainfall'] = data['01h']
                         # deelte key which unuse
                         del data['010m']
 
@@ -178,13 +176,13 @@ class Rain():
                     
                     dataList = []
                     forecastPoint = _stationData[stcode]['points']
-                    meanValue = round(mean([float(i) for i in simRainDataFrame.loc[forecastPoint].iloc[:, 2]]), 2)
+                    meanValue = round(mean([float(i) for i in simRainDataFrame.loc[forecastPoint].iloc[:, 2]]), 1)
                     maxValue = max([float(i) for i in simRainDataFrame.loc[forecastPoint].iloc[:, 2]])
                     information = {}
                     information['type'] = simUrl
                     information['time'] = dataTimeApi                
-                    information['mean'] = meanValue
-                    information['max'] = maxValue
+                    information['01h_mean'] = meanValue
+                    information['01h_max'] = maxValue
                         
                     dataList.append(information)
                     simRainDict[stcode].extend(dataList)
@@ -199,16 +197,19 @@ class Rain():
         1. Change key name from 'mean' to 'rainfall'
         2. delete unuse key 'max'
         '''
-        inputSimRainDict = copy.deepcopy(simRainDict)
-        newKey = 'rainfall'
-        oldKey = 'mean'
+        if simRainDict == []:
+            pass
+        else:
+            inputSimRainDict = copy.deepcopy(simRainDict)
+            newKey = 'rainfall'
+            oldKey = '01h_mean'
 
-        for stcode in self.stationNameList:
-            simData = inputSimRainDict[stcode]
+            for stcode in self.stationNameList:
+                simData = inputSimRainDict[stcode]
 
-            for data in simData:
-                data[newKey] = data.pop(oldKey)
-                del data['max']
+                for data in simData:
+                    data[newKey] = data.pop(oldKey)
+                    del data['01h_max']
         
         return inputSimRainDict
 
@@ -222,11 +223,39 @@ class Rain():
         return combineRainDict
 
 
-    def warnRainDict(self, warnObsRainDict, simRainDict):
-        warnRainDict = self.combineRainDict(warnObsRainDict, simRainDict)
-
-
-        return warnRainDict
+    def sumRainDict(self, sumObsRainDict, simRainDict, pastHours):
+        sumRainDict = self.combineRainDict(sumObsRainDict, simRainDict)
+        
+        for key in sumRainDict.keys():
+            startIndex = pastHours + 1
+            endIndex = len(sumRainDict[key])
+            
+            sumRainDict[key] = [{k:0 if v == -9999 else v for k, v in item.items()} for item in sumRainDict[key]]
+            meanList = [val['01h'] if val['type'] == 'OBS' else val['01h_mean'] for val in sumRainDict[key]]
+            maxList = [val['01h'] if val['type'] == 'OBS' else val['01h_max'] for val in sumRainDict[key]]
+            for num in range(startIndex, endIndex):
+                sumRainDict[key][num]['03h_mean'] = round(sum(meanList[num-2: num+1]))
+                sumRainDict[key][num]['03h_max'] = round(sum(maxList[num-2: num+1]))
+                sumRainDict[key][num]['06h_mean'] = round(sum(meanList[num-5: num+1]))
+                sumRainDict[key][num]['06h_max'] = round(sum(maxList[num-5: num+1]))
+                sumRainDict[key][num]['12h_mean'] = round(sum(meanList[num-11: num+1]))
+                sumRainDict[key][num]['12h_max'] = round(sum(maxList[num-11: num+1]))
+                sumRainDict[key][num]['24h_mean'] = round(sum(meanList[num-23: num+1]))
+                sumRainDict[key][num]['24h_max'] = round(sum(maxList[num-23: num+1]))
+                if num-47 < 0:
+                    sumRainDict[key][num]['48h_mean'] = nan
+                    sumRainDict[key][num]['48h_max'] = nan
+                else:
+                    sumRainDict[key][num]['48h_mean'] = round(sum(meanList[num-47: num+1]))
+                    sumRainDict[key][num]['48h_max'] = round(sum(maxList[num-47: num+1]))
+                if num-71 < 0:
+                    sumRainDict[key][num]['72h_mean'] = nan
+                    sumRainDict[key][num]['72h_max'] = nan
+                else:
+                    sumRainDict[key][num]['72h_mean'] = round(sum(meanList[num-71: num+1]))
+                    sumRainDict[key][num]['72h_max'] = round(sum(maxList[num-71: num+1]))        
+        
+        return sumRainDict
 
 
 if __name__ == '__main__':
