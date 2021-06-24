@@ -230,24 +230,32 @@ class Rain():
             startIndex = pastHours + 1
             endIndex = len(sumRainDict[key])
             
+            # repalce -9999 to 0
             sumRainDict[key] = [{k:0 if v == -9999 else v for k, v in item.items()} for item in sumRainDict[key]]
+            # add all value into a list
             meanList = [val['01h'] if val['type'] == 'OBS' else val['01h_mean'] for val in sumRainDict[key]]
             maxList = [val['01h'] if val['type'] == 'OBS' else val['01h_max'] for val in sumRainDict[key]]
             for num in range(startIndex, endIndex):
+                # Count 3 hours sum
                 sumRainDict[key][num]['03h_mean'] = round(sum(meanList[num-2: num+1]))
                 sumRainDict[key][num]['03h_max'] = round(sum(maxList[num-2: num+1]))
+                # Count 6 hours sum
                 sumRainDict[key][num]['06h_mean'] = round(sum(meanList[num-5: num+1]))
                 sumRainDict[key][num]['06h_max'] = round(sum(maxList[num-5: num+1]))
+                # Count 12 hours sum
                 sumRainDict[key][num]['12h_mean'] = round(sum(meanList[num-11: num+1]))
                 sumRainDict[key][num]['12h_max'] = round(sum(maxList[num-11: num+1]))
+                # Count 24 hours sum
                 sumRainDict[key][num]['24h_mean'] = round(sum(meanList[num-23: num+1]))
                 sumRainDict[key][num]['24h_max'] = round(sum(maxList[num-23: num+1]))
+                # Count 48 hours sum, if data length is smaller than 48 hours, then the value is nan
                 if num-47 < 0:
                     sumRainDict[key][num]['48h_mean'] = nan
                     sumRainDict[key][num]['48h_max'] = nan
                 else:
                     sumRainDict[key][num]['48h_mean'] = round(sum(meanList[num-47: num+1]))
                     sumRainDict[key][num]['48h_max'] = round(sum(maxList[num-47: num+1]))
+                # Count 72 hours sum, if data length is smaller than 72 hours, then the value is nan
                 if num-71 < 0:
                     sumRainDict[key][num]['72h_mean'] = nan
                     sumRainDict[key][num]['72h_max'] = nan
