@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from collections import defaultdict
 import json
-from numpy import mean, nan
+from numpy import mean
 import os
 from datetime import datetime, timedelta
 from pandas import date_range
@@ -250,15 +250,15 @@ class Rain():
                 sumRainDict[key][num]['24h_max'] = round(sum(maxList[num-23: num+1]))
                 # Count 48 hours sum, if data length is smaller than 48 hours, then the value is nan
                 if num-47 < 0:
-                    sumRainDict[key][num]['48h_mean'] = nan
-                    sumRainDict[key][num]['48h_max'] = nan
+                    sumRainDict[key][num]['48h_mean'] = -9999
+                    sumRainDict[key][num]['48h_max'] = -9999
                 else:
                     sumRainDict[key][num]['48h_mean'] = round(sum(meanList[num-47: num+1]))
                     sumRainDict[key][num]['48h_max'] = round(sum(maxList[num-47: num+1]))
                 # Count 72 hours sum, if data length is smaller than 72 hours, then the value is nan
                 if num-71 < 0:
-                    sumRainDict[key][num]['72h_mean'] = nan
-                    sumRainDict[key][num]['72h_max'] = nan
+                    sumRainDict[key][num]['72h_mean'] = -9999
+                    sumRainDict[key][num]['72h_max'] = -9999
                 else:
                     sumRainDict[key][num]['72h_mean'] = round(sum(meanList[num-71: num+1]))
                     sumRainDict[key][num]['72h_max'] = round(sum(maxList[num-71: num+1]))        
