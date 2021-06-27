@@ -2,35 +2,32 @@
 from ..data.rainstation_data import _stationData
 import time
 class Warn():
-    def __init__(self, sumRainDict, pastHours):
+    def __init__(self, sumRainDict, notifyHours):
         self.sumRainDict = sumRainDict
-        self.pastHours = pastHours
-        self.warnStrDict = self.warning(sumRainDict, pastHours)
+        self.warnStrDict = self.warning(sumRainDict, notifyHours)
         self.warnStation = list(self.warnStrDict.keys())
 
 
-    def warning(self, sumRainDict, pastHours):
+    def warning(self, sumRainDict, notifyHours):
+        # notifyHours: 要使用line notify 發布的預報長度
         warningStrDict = {}
-        pastHours = pastHours
         fmt = '%Y-%m-%d %H:00:00'
 
         for stcode in sumRainDict.keys():
-            startIndex = pastHours + 1
-            endIndex = len(sumRainDict[stcode])
             chineseName = _stationData[stcode]["chineseName"]
             warningStrList = []
             rainInform = []
             
             # transform string from '%Y-%m-%d %H:00:00' to '%m-%d %H'
-            timeFmt = [time.strftime('%m-%d %H',time.strptime(val['time'], fmt)) for val in sumRainDict[stcode] if val['type'] != 'OBS' ][:6]
+            timeFmt = [time.strftime('%m-%d %H',time.strptime(val['time'], fmt)) for val in sumRainDict[stcode] if val['type'] != 'OBS' ][:notifyHours]
             
-            mean01hList = [val['01h_mean'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ][:6]
-            mean03hList = [val['03h_mean'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ][:6]
-            mean24hList = [val['24h_mean'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ][:6]
+            mean01hList = [val['01h_mean'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ][:notifyHours]
+            mean03hList = [val['03h_mean'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ][:notifyHours]
+            mean24hList = [val['24h_mean'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ][:notifyHours]
 
-            max01hList = [val['01h_max'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ][:6]
-            max03hList = [val['03h_max'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ][:6]
-            max24hList = [val['24h_max'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ][:6]
+            max01hList = [val['01h_max'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ][:notifyHours]
+            max03hList = [val['03h_max'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ][:notifyHours]
+            max24hList = [val['24h_max'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ][:notifyHours]
 
             # heavyRain: 大雨
             # extremeHeavyRain: 豪雨

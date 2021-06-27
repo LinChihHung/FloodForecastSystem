@@ -144,7 +144,7 @@ class Rain():
                 futureHours = forecastLen            
             simFlag = True        
         except:
-            print(f"Warning!! {simUrl} doesn't exist. It will return any emty list")
+            print(f"Warning!! {simUrl} doesn't exist. It will return an empty list")
             simFlag = False
                 
         if simFlag:
@@ -198,6 +198,7 @@ class Rain():
         2. delete unuse key 'max'
         '''
         if simRainDict == []:
+            inputSimRainDict = []
             pass
         else:
             inputSimRainDict = copy.deepcopy(simRainDict)
@@ -215,10 +216,14 @@ class Rain():
 
    
     def combineRainDict(self, obsRainDict, simRainDict):
-        combineRainDict = copy.deepcopy(obsRainDict)
-        
-        for stcode in obsRainDict.keys():
-            combineRainDict[stcode].extend(simRainDict[stcode])
+        if not simRainDict:
+            print('Warning!! simRainDict is an empty list, it will not combine with obsRainDict.')
+            combineRainDict = []
+        else:
+            combineRainDict = copy.deepcopy(obsRainDict)
+            
+            for stcode in obsRainDict.keys():
+                combineRainDict[stcode].extend(simRainDict[stcode])
         
         return combineRainDict
 
@@ -248,14 +253,14 @@ class Rain():
                 # Count 24 hours sum
                 sumRainDict[key][num]['24h_mean'] = round(sum(meanList[num-23: num+1]))
                 sumRainDict[key][num]['24h_max'] = round(sum(maxList[num-23: num+1]))
-                # Count 48 hours sum, if data length is smaller than 48 hours, then the value is nan
+                # Count 48 hours sum, if data length is smaller than 48 hours, then the value is -9999
                 if num-47 < 0:
                     sumRainDict[key][num]['48h_mean'] = -9999
                     sumRainDict[key][num]['48h_max'] = -9999
                 else:
                     sumRainDict[key][num]['48h_mean'] = round(sum(meanList[num-47: num+1]))
                     sumRainDict[key][num]['48h_max'] = round(sum(maxList[num-47: num+1]))
-                # Count 72 hours sum, if data length is smaller than 72 hours, then the value is nan
+                # Count 72 hours sum, if data length is smaller than 72 hours, then the value is -9999
                 if num-71 < 0:
                     sumRainDict[key][num]['72h_mean'] = -9999
                     sumRainDict[key][num]['72h_max'] = -9999
