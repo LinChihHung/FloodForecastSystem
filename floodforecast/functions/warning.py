@@ -22,16 +22,16 @@ class Warn():
             rainInform = []
             
             # transform string from '%Y-%m-%d %H:00:00' to '%m-%d %H'
-            timeFmt = [time.strftime('%m-%d %H',time.strptime(val['time'], fmt)) for val in sumRainDict[stcode] if val['type'] != 'OBS' ]
+            timeFmt = [time.strftime('%m-%d %H',time.strptime(val['time'], fmt)) for val in sumRainDict[stcode] if val['type'] != 'OBS' ][:6]
             
-            mean01hList = [val['01h_mean'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ]
-            mean03hList = [val['03h_mean'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ]
-            mean24hList = [val['24h_mean'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ]
+            mean01hList = [val['01h_mean'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ][:6]
+            mean03hList = [val['03h_mean'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ][:6]
+            mean24hList = [val['24h_mean'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ][:6]
 
-            max01hList = [val['01h_max'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ]
-            max03hList = [val['03h_max'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ]
-            max24hList = [val['24h_max'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ]
-            
+            max01hList = [val['01h_max'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ][:6]
+            max03hList = [val['03h_max'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ][:6]
+            max24hList = [val['24h_max'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ][:6]
+
             # heavyRain: 大雨
             # extremeHeavyRain: 豪雨
             # torrentialRain: 大豪雨
@@ -70,7 +70,7 @@ class Warn():
                 warningStrList.append(f'\n{chineseName}測站({stcode})')
                 warningStrList.append('24小時累積雨量大於500 mm, 已達超大豪雨等級')
                 warningStrList.extend([
-                    f'\n{timeFmt[t]}：{mean24hList[t]}-{max24hList[t]} mm/24hr'
+                    f'\n{timeFmt[t]}：\n3小時累積雨量{mean03hList[t]}-{max03hList[t]} mm \n24小時累積雨量{mean24hList[t]}-{max24hList[t]} mm'
                     for t ,(mean24, max24) in enumerate(zip(mean24hList, max24hList))
                 ])
                 pass
@@ -83,7 +83,7 @@ class Warn():
                     warningStrList.append('24小時累積雨量大於350 mm')
                 warningStrList.append('已達大豪雨等級')
                 warningStrList.extend([
-                    f'\n{timeFmt[t]}：{mean03hList[t]}-{max03hList[t]} mm/3hr, {mean24hList[t]}-{max24hList[t]} mm/24hr'
+                    f'\n{timeFmt[t]}：\n3小時累積雨量{mean03hList[t]}-{max03hList[t]} mm \n24小時累積雨量{mean24hList[t]}-{max24hList[t]} mm'
                     for t ,(mean03, max03, mean24, max24) in enumerate(zip(mean03hList, max03hList, mean24hList, max24hList))
                 ])
                 pass
@@ -96,7 +96,7 @@ class Warn():
                     warningStrList.append('24小時累積雨量大於200 mm')
                 warningStrList.append('已達豪雨等級')
                 warningStrList.extend([
-                    f'\n{timeFmt[t]}：{mean03hList[t]}-{max03hList[t]} mm/3hr, {mean24hList[t]}-{max24hList[t]} mm/24hr'
+                    f'\n{timeFmt[t]}：\n3小時累積雨量{mean03hList[t]}-{max03hList[t]} mm \n24小時累積雨量{mean24hList[t]}-{max24hList[t]} mm'
                     for t ,(mean03, max03, mean24, max24) in enumerate(zip(mean03hList, max03hList, mean24hList, max24hList))
                 ])
                 pass
@@ -109,13 +109,13 @@ class Warn():
                     warningStrList.append('24小時累積雨量大於80 mm')
                 warningStrList.append('已達大雨等級')
                 warningStrList.extend([
-                    f'\n{timeFmt[t]}：{mean01hList[t]}-{max01hList[t]} mm/hr, {mean24hList[t]}-{max24hList[t]} mm/24hr'
+                    f'\n{timeFmt[t]}：\n3小時累積雨量{mean03hList[t]}-{max03hList[t]} mm \n24小時累積雨量{mean24hList[t]}-{max24hList[t]} mm'
                     for t ,(mean01, max01, mean24, max24) in enumerate(zip(mean01hList, max01hList, mean24hList, max24hList))
                 ])
                 pass
 
             else:
-                break
+                continue
             
             warningStr = ' '.join(warningStrList)
             warningStrDict[stcode] = warningStr
