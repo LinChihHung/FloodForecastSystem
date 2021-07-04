@@ -23,20 +23,23 @@ class notify():
         line = Line(token='FRYsdxMysDd4pyL4cJ7a20QgPrtj2qARz7SCxBVxY6r')
         
         if status == 'safe16':
+            # 下午四點的提醒, 提醒大家可以下班了
             message = '\n恭喜各位, 可以安心下班了'
             image = os.path.join(os.getcwd(), 'img', 'Line', 'happyday.png')
             line.post(message=message, imageFile=image)
+        
         elif status == 'safe22':
+            # 晚上十點的提醒, 提醒大家可以睡覺了
             message = '\n恭喜各位, 可以安心睡覺了'
             image = os.path.join(os.getcwd(), 'img', 'Line', 'sleep.png')
             line.post(message=message, imageFile=image)
+        
         else:
             for stcode in warnStrDict.keys():
                 message = warnStrDict[stcode]
                 imgName = f'{stcode}-{_stationData[stcode]["chineseName"]}.jpg'
                 image = os.path.join(self.imgRainPath, imgName)
 
-                line.post(message='測試')
                 line.post(message=message, imageFile=image)
 
 

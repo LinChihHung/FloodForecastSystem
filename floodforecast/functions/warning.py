@@ -10,6 +10,7 @@ class Warn():
 
     def warning(self, sumRainDict, notifyHours):
         # notifyHours: 要使用line notify 發布的預報長度
+        # 設定為6, 預報未來6小時資訊
         warningStrDict = {}
         fmt = '%Y-%m-%d %H:00:00'
 
@@ -19,7 +20,7 @@ class Warn():
             rainInform = []
             
             # transform string from '%Y-%m-%d %H:00:00' to '%m-%d %H'
-            timeFmt = [time.strftime('%m-%d %H',time.strptime(val['time'], fmt)) for val in sumRainDict[stcode] if val['type'] != 'OBS' ][:notifyHours]
+            timeFmt = [time.strftime('%m-%d %H', time.strptime(val['time'], fmt)) for val in sumRainDict[stcode] if val['type'] != 'OBS' ][:notifyHours]
             
             mean01hList = [val['01h_mean'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ][:notifyHours]
             mean03hList = [val['03h_mean'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ][:notifyHours]

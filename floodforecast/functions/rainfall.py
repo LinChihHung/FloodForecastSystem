@@ -7,6 +7,7 @@ from collections import defaultdict
 import json
 from numpy import mean
 import os
+import time
 from datetime import datetime, timedelta
 from pandas import date_range
 from zipfile import ZipFile
@@ -133,7 +134,7 @@ class Rain():
         return bmeObsRainDict
 
     
-    def simRainDict(self, simUrl, futureHoursMax=24):
+    def simRainDict(self, simUrl, futureHoursMax=24, BME=False):
         simRainDict = {}
         try:
             data = urlopen(os.path.join(_url[simUrl], self.nowFormat)).read().decode('utf-8')
@@ -164,8 +165,10 @@ class Rain():
                 simRainDataFrame = pd.DataFrame(
                     rawFile[5:], columns=['Longtitude', 'Latitude', 'intensity (mm/hr)']
                 )
-                if num == 0:
-                    fileName = str(int(self.nowFormat)+1) + '.csv'
+                if num == 0 and BME is True:
+                    fmt = '%Y%m%d%H'
+                    fileTime = datetime(*time.strptime(self.nowFormat, fmt)[:6]) + timedelta(hours=1)
+                    fileName = f'{fileTime.strftime(fmt)}_{simUrl}.csv'
                     csvPath = os.path.join(os.getcwd(), 'floodforecast', 'data', 'csv', fileName)
                     simRainDataFrame.to_csv(csvPath, index=None)
 
