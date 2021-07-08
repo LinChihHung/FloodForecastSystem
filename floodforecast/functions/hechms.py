@@ -8,15 +8,17 @@ from datetime import datetime
 class HecHms():
     """A class for operating hechms model"""
      
-    def __init__(self, path, basin, rainDict, hmsModelPath, stationNameList, controlName='Current', rainfallFileName='rainfallHms.dss'):
+    def __init__(self, path, basin, rainDict, hmsModelPath, stationNameList, crossSectionList, controlName='Current', rainfallFileName='rainfallHms.dss'):
         self.path = path
         self.basin = basin
         self.startTime, self.endTime = self.hmstimer(rainDict)
         self.gagePath, self.rainfallPath, self.controlPath, self.resultPath = self.hmssetup(hmsModelPath, controlName, rainfallFileName)
+        self.controlName = controlName
         self.hmsrain(stationNameList, rainDict)
         self.hmsgage(stationNameList=stationNameList)
         self.hmscontrol()
         self.hmsrun(path, basin)
+        self.hmsresults(crossSectionList)
 
 
 
@@ -180,6 +182,27 @@ class HecHms():
         with open(self.controlPath, 'w') as f:
             for item in controlText:
                 f.write(item)
+
+    def hmsresults(self, crossSectionList):
+        self.resultsDict = {}
+        
+        for crossSection in crossSectionList:
+            try:
+                resultPathname = self.pathname(
+                    location=crossSection, dss=True, flow=True)
+                start = self.startTime.strftime('%d %B %Y, %H:00 ')
+                end = self.endTime.strftime('%d %B %Y, %H:00 ')
+
+                fid = HecDss.Open(self.resultPath)
+                ts = fid.read_ts(resultPathname, window=(start, end), trim_missing=True)
+                values = ts.values.tolist()
+                self.resultsDict[crossSection] = values
+            except:
+                pass
+
+        fid.close()
+
+        return self.resultsDict
 
 
     def hmsrun(self, path, basin):

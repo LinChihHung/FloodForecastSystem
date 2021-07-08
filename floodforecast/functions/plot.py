@@ -5,7 +5,7 @@ from pandas import date_range
 import numpy as np
 import os
 from datetime import datetime
-from ..data.rainstation_data import _stationData
+from ..data.rainstation_data import _stationDataRain
 import time
 
 
@@ -49,7 +49,7 @@ class PlotRain(Plot):
             plt.rcParams['ytick.labelsize'] = 16
             plt.rcParams['axes.axisbelow'] = True
 
-            chineseName = _stationData[stcode]['chineseName']
+            chineseName = Rain[stcode]['chineseName']
             dateRange = [datetime(*time.strptime(val['time'], fmt)[:6]) for val in sumRainDict[stcode] if val['type'] != 'OBS']
             mean01hList = [val['01h_mean'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ]
             mean03hList = [val['03h_mean'] for val in sumRainDict[stcode] if val['type'] != 'OBS' ]
@@ -99,7 +99,7 @@ class PlotRain(Plot):
             
             fig.tight_layout()
             saveName = os.path.join(
-                self.imgRainPath, stcode + '-' + _stationData[stcode]['chineseName']
+                self.imgRainPath, stcode + '-' + Rain[stcode]['chineseName']
                 )
             fig.savefig(f'{saveName}.jpg', dpi=330)
             plt.close(fig)

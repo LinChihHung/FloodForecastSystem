@@ -1,20 +1,19 @@
 from ..functions.timer import Timer
 from ..data.url_data import _url
-from ..data.rainstation_data import _stationData
+from ..data.rainstation_data import _stationDataRain
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
-from collections import defaultdict
 import json
 from numpy import mean
 import os
 import time
 from datetime import datetime, timedelta
-from pandas import date_range
 from zipfile import ZipFile
 from io import BytesIO
 import re
 import pandas as pd
 import copy
+import random
 
 class Rain():
     def __init__(self, stationNameList, nowFormat, pastHours, obsUrl='CWB'):
@@ -58,6 +57,7 @@ class Rain():
                         information['24h'] = -9999
                 dataList.append(information)
             obsRainDict[stcode] = dataList
+            print(f'station: {stcode}, complete')
         
         return obsRainDict
 
@@ -178,7 +178,7 @@ class Rain():
                         simRainDict[stcode] = []
                     
                     dataList = []
-                    forecastPoint = _stationData[stcode]['points']
+                    forecastPoint = _stationDataRain[stcode]['points']
                     meanValue = round(mean([float(i) for i in simRainDataFrame.loc[forecastPoint].iloc[:, 2]]), 1)
                     maxValue = max([float(i) for i in simRainDataFrame.loc[forecastPoint].iloc[:, 2]])
                     information = {}

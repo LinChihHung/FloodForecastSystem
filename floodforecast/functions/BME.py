@@ -1,4 +1,4 @@
-# from ..data.rainstation_data import _stationData
+# from ..data.rainstation_data import _stationDataRain
 import os
 import twd97
 import json
@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 import copy
 from datetime import datetime, timedelta
-from ..data.rainstation_data import _stationData
+from ..data.rainstation_data import _stationDataRain
 from ..functions.BMEFunction import BMEestimation
 
 class BME:
@@ -41,7 +41,7 @@ class BME:
     
     def GetBMESimInput(self, stcode):
         # get forcasting value and location by given grid points and CSV file
-        points = _stationData[stcode]['points']
+        points = _stationDataRain[stcode]['points']
         obsValue = [val['rainfall'] for val in self.bmeObsRainDict[stcode]]
         stPdict = pd.DataFrame([])
         

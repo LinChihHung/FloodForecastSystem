@@ -2,7 +2,7 @@ from hms.model import Project
 from hms import Hms
 
 myProject = Project.open(
-    r"C:\Users\User\Desktop\HualienRiver_HMS_0917\HualienRiver_0917.hms")
+    r"C:\Users\User\Documents\FloodForecastSystem\model\HMS\Hualien\2021.03.17_HLBridge\HLBridge_20210317.hms")
 myProject.computeRun('Current')
 myProject.close()
 

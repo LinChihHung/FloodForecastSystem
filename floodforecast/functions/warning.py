@@ -1,5 +1,5 @@
 # encoding:utf-8
-from ..data.rainstation_data import _stationData
+from ..data.rainstation_data import _stationDataRain
 import time
 class Warn():
     def __init__(self, sumRainDict, notifyHours):
@@ -15,7 +15,7 @@ class Warn():
         fmt = '%Y-%m-%d %H:00:00'
 
         for stcode in sumRainDict.keys():
-            chineseName = _stationData[stcode]["chineseName"]
+            chineseName = _stationDataRain[stcode]["chineseName"]
             warningStrList = []
             rainInform = []
             
